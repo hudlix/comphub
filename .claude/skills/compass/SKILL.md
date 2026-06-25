@@ -1,6 +1,6 @@
 ---
 name: compass
-description: Read and write this repo's committed AI session memory in .compass/. Use at the start of a work session to recall what happened last time, and at the end to log what was done. Triggers include the user typing /compass, or asking to "log this session", "save our progress", "what did we do last time", "pick up where we left off", or "standardize this repo for compass".
+description: Read and write this repo's committed AI session memory in .compass/. Use at the start of a work session to recall what happened last time, and at the end to log what was done. Triggers include the user typing /compass, or asking to "log this session", "save our progress", "what did we do last time", "pick up where we left off", "standardize this repo for compass", or "what can compass do / list compass commands".
 ---
 
 # Compass — per-repo session memory
@@ -23,7 +23,31 @@ work it describes.**
 
 ## Subcommands
 
-Parse the text after `/compass`. With no argument, default to **recall**.
+Parse the text after `/compass`. With no argument, default to **recall**. Use **help**
+to list every command, or `help <command>` for example usage.
+
+### `/compass help [command]`
+Show what compass can do, and example usage on request.
+1. With **no command argument**, print the command list — one line each:
+   - `recall` — restore context from prior sessions (the default when you type `/compass`)
+   - `log [title]` — record the current session into `.compass/sessions/`
+   - `standardize` — create the `.compass/` skeleton if missing
+   - `help [command]` — show this list, or example usage for one command
+
+   Then invite the user to choose: "Reply with a command name — or run
+   `/compass help <command>` — to see example usage."
+2. If the user names a command (via `/compass help <command>`, or by replying with the
+   name after the list), show that command's **Example** block. If the name is unknown,
+   list the valid command names.
+
+**Example**
+```text
+> /compass help
+→ lists recall / log / standardize / help, then:
+  "Reply with a command name — or run /compass help <command> — to see example usage."
+> log                     (or: /compass help log)
+→ prints the log Example block below.
+```
 
 ### `/compass recall`
 Restore context from prior sessions before starting work.
@@ -32,6 +56,14 @@ Restore context from prior sessions before starting work.
    `.compass/sessions/` (highest ids).
 3. Summarize for the user: what was last done, the current branch/state, and any
    **open threads / next steps**. Do not start work — just surface the memory.
+
+**Example**
+```text
+> /compass recall
+→ "Last session (0002): added the /compass skill and .compass/ memory; merged to
+   main via PR #1. Branch is now main. Open threads: make the Continuity workspace
+   read .compass/, and build the app's standardize-repo PR."
+```
 
 ### `/compass log [title]`
 Record the current session.
@@ -79,10 +111,25 @@ commits: [<short sha>, ...]   # commits this session produced, if any
 - [ ] <the next thing, specific enough to act on cold>
 ```
 
+**Example**
+```text
+> /compass log Delivery read-only slice
+→ creates .compass/sessions/0003-delivery-read-only-slice.md (goal, work, decisions
+   with why, files, next steps), prepends a line to .compass/index.md, and stages
+   both so they land in the same commit as the work.
+```
+
 ### `/compass standardize`
 Create the `.compass/` skeleton if missing: `README.md` (from this skill's description of
 the format), an empty `index.md` with a heading, and an empty `sessions/` directory.
 Mirrors the app's "standardize repo" PR, done locally. Never overwrites existing logs.
+
+**Example**
+```text
+> /compass standardize
+→ on a repo with no .compass/: creates README.md, an empty index.md, and sessions/.
+   On a repo that already has them: reports "already standardized" and changes nothing.
+```
 
 ## Rules
 - **Append-only history.** Don't rewrite past session files except to correct an error.
