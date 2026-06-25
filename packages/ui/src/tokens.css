@@ -1,0 +1,32 @@
+/* Editorial design tokens for CompHub. Fonts: Fraunces (display), Inter (UI),
+   JetBrains Mono (data). Imports are best-effort; fallbacks keep the app readable
+   offline / in mock mode. */
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..600&family=Inter:wght@400..600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  --color-paper: #fbfaf7;
+  --color-ink: #1c1c1a;
+  --color-marine: #16485a;
+  --color-sienna: #c2703d;
+  --color-line: #e7e2d9;
+  --color-muted: #6b6b63;
+
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-ui: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  --radius: 10px;
+  --space: 8px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+}

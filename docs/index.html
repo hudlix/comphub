@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CompHub — open-source control plane for engineering compliance</title>
+<meta name="description" content="CompHub is an open-source control plane that helps engineering teams stay compliant and in control — vulnerability SLAs, delivery cadence, health, observability, and resumable AI session memory — without replacing the tools they already use.">
+<meta property="og:title" content="CompHub — stay compliant and in control, without replacing your stack">
+<meta property="og:description" content="Open-source control plane: vulnerability SLAs, delivery, health, observability, reporting, and committed AI session memory. Runs in mock mode with zero credentials.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;450;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FBFAF7; --surface:#FFFFFF; --surface-2:#F4F0E8; --inset:#F6F3EC;
+    --ink:#1A1815; --muted:#5F584C; --faint:#94897A; --line:#E8E2D6; --line-2:#D8D0C0;
+    --marine:#16485A; --marine-2:#0F3947; --marine-soft:#E5EEF0; --marine-ink:#16485A;
+    --ok:#3F7D5B; --ok-bg:#EAF2EC; --warn:#C2703D; --warn-bg:#F8EEE4; --breach:#B23A2E; --breach-bg:#F8E8E5;
+    --shadow-sm:0 1px 2px rgba(26,24,21,.05), 0 4px 12px rgba(26,24,21,.05);
+    --shadow-lg:0 8px 24px rgba(26,24,21,.08), 0 30px 70px rgba(26,24,21,.12);
+    --radius:12px; --radius-sm:8px; --maxw:1140px;
+  }
+  html[data-theme="dark"]{
+    --paper:#14120E; --surface:#1C1A15; --surface-2:#221F19; --inset:#201D17;
+    --ink:#F3EFE6; --muted:#B3AA99; --faint:#857C6C; --line:#2C281F; --line-2:#3A352B;
+    --marine:#3E8CA3; --marine-2:#347788; --marine-soft:#16303A; --marine-ink:#74BACD;
+    --ok:#5FA77E; --ok-bg:#18271E; --warn:#D38A5A; --warn-bg:#2A1F15; --breach:#CF5B4D; --breach-bg:#2A1714;
+    --shadow-sm:0 1px 2px rgba(0,0,0,.3), 0 4px 12px rgba(0,0,0,.3);
+    --shadow-lg:0 8px 24px rgba(0,0,0,.4), 0 30px 70px rgba(0,0,0,.5);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;background:var(--paper);color:var(--ink);
+    font-family:'Inter',system-ui,sans-serif;font-size:16px;line-height:1.6;
+    -webkit-font-smoothing:antialiased;transition:background .3s,color .3s;
+  }
+  a{color:inherit;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px;}
+  section{scroll-margin-top:80px;}
+  h1,h2,h3{font-family:'Fraunces',serif;font-weight:500;letter-spacing:-.02em;line-height:1.08;margin:0;}
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--marine-ink);margin:0 0 14px;font-weight:500;
+  }
+  .lead{color:var(--muted);font-size:18px;}
+
+  /* ---------- Nav ---------- */
+  nav{position:sticky;top:0;z-index:60;background:color-mix(in srgb, var(--paper) 88%, transparent);
+    backdrop-filter:blur(10px);border-bottom:1px solid transparent;transition:border-color .2s, box-shadow .2s;}
+  nav.scrolled{border-bottom:1px solid var(--line);box-shadow:0 1px 0 rgba(0,0,0,.01);}
+  .nav-in{display:flex;align-items:center;gap:24px;height:64px;}
+  .logo{font-family:'Fraunces',serif;font-weight:600;font-size:21px;letter-spacing:-.01em;text-decoration:none;display:flex;align-items:baseline;gap:8px;}
+  .logo .dot{color:var(--marine-ink);}
+  .logo .tag{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);}
+  .nav-links{display:flex;gap:26px;margin-left:8px;}
+  .nav-links a{text-decoration:none;color:var(--muted);font-size:14.5px;font-weight:450;transition:color .15s;}
+  .nav-links a:hover{color:var(--ink);}
+  .nav-right{margin-left:auto;display:flex;align-items:center;gap:12px;}
+  .icon-btn{display:grid;place-items:center;width:38px;height:38px;border-radius:9px;border:1px solid var(--line);background:var(--surface);cursor:pointer;color:var(--ink);transition:background .15s,border-color .15s;}
+  .icon-btn:hover{background:var(--surface-2);}
+  .icon-btn svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.7;}
+  .gh-star{display:flex;align-items:center;gap:0;border:1px solid var(--line-2);border-radius:9px;overflow:hidden;text-decoration:none;font-size:13.5px;font-weight:500;background:var(--surface);}
+  .gh-star .gh-label{display:flex;align-items:center;gap:7px;padding:8px 11px;}
+  .gh-star .gh-label svg{width:15px;height:15px;fill:currentColor;}
+  .gh-star .gh-count{padding:8px 11px;border-left:1px solid var(--line);font-family:'JetBrains Mono',monospace;color:var(--muted);min-width:42px;text-align:center;}
+  .gh-star:hover{background:var(--surface-2);}
+  .btn{display:inline-flex;align-items:center;gap:8px;font-size:14.5px;font-weight:550;text-decoration:none;
+    padding:9px 17px;border-radius:9px;border:1px solid transparent;cursor:pointer;transition:transform .12s,background .15s,border-color .15s;white-space:nowrap;}
+  .btn:active{transform:translateY(1px);}
+  .btn.primary{background:var(--marine);color:#fff;border-color:var(--marine);}
+  .btn.primary:hover{background:var(--marine-2);}
+  .btn.ghost{background:transparent;color:var(--ink);border-color:var(--line-2);}
+  .btn.ghost:hover{background:var(--surface-2);}
+  .hamburger{display:none;}
+
+  /* ---------- Hero ---------- */
+  .hero{position:relative;padding:74px 0 30px;text-align:center;overflow:hidden;}
+  .hero::before{content:"";position:absolute;top:-120px;left:50%;transform:translateX(-50%);
+    width:900px;height:520px;background:radial-gradient(closest-side, var(--marine-soft), transparent 70%);
+    opacity:.7;pointer-events:none;}
+  .hero .wrap{position:relative;}
+  .badges{display:flex;justify-content:center;flex-wrap:wrap;gap:8px;margin-bottom:24px;}
+  .pill{display:inline-flex;align-items:center;gap:7px;font-family:'JetBrains Mono',monospace;font-size:11.5px;
+    padding:5px 11px;border-radius:999px;border:1px solid var(--line-2);background:var(--surface);color:var(--muted);}
+  .pill .dotc{width:6px;height:6px;border-radius:50%;}
+  .hero h1{font-size:clamp(36px,6vw,62px);font-weight:600;max-width:14ch;margin:0 auto;}
+  .hero h1 em{font-style:normal;color:var(--marine-ink);}
+  .hero .lead{max-width:60ch;margin:22px auto 0;font-size:clamp(16px,2.4vw,20px);}
+  .cta-row{display:flex;justify-content:center;flex-wrap:wrap;gap:12px;margin-top:30px;}
+  .cta-row .btn{padding:12px 22px;font-size:15.5px;}
+
+  /* install command */
+  .install{display:inline-flex;align-items:center;gap:14px;margin:26px auto 0;
+    background:var(--ink);color:var(--paper);border-radius:11px;padding:12px 12px 12px 18px;
+    font-family:'JetBrains Mono',monospace;font-size:14px;box-shadow:var(--shadow-sm);max-width:92vw;cursor:pointer;}
+  html[data-theme="dark"] .install{background:#0C0B08;color:#EDE8DD;border:1px solid var(--line-2);}
+  .install .prompt{color:var(--marine-ink);opacity:.9;}
+  .install code{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .copy-btn{flex:none;display:grid;place-items:center;width:34px;height:34px;border-radius:8px;border:none;
+    background:rgba(255,255,255,.1);color:inherit;cursor:pointer;transition:background .15s;}
+  .copy-btn:hover{background:rgba(255,255,255,.2);}
+  .copy-btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.8;}
+
+  /* product shot */
+  .shot{margin:54px auto 0;max-width:1000px;border-radius:14px;overflow:hidden;
+    border:1px solid var(--line);background:var(--surface);box-shadow:var(--shadow-lg);}
+  .shot .chrome{display:flex;align-items:center;gap:8px;padding:11px 14px;border-bottom:1px solid var(--line);background:var(--surface-2);}
+  .shot .chrome .dots{display:flex;gap:6px;}
+  .shot .chrome .dots i{width:11px;height:11px;border-radius:50%;display:block;}
+  .shot .urlbar{margin:0 auto;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--faint);
+    background:var(--surface);border:1px solid var(--line);border-radius:7px;padding:4px 16px;}
+  .shot img{display:block;width:100%;height:auto;}
+
+  /* ---------- generic section ---------- */
+  .sec{padding:84px 0;}
+  .sec-head{max-width:62ch;margin-bottom:44px;}
+  .sec-head.center{margin-left:auto;margin-right:auto;text-align:center;}
+  .sec-head h2{font-size:clamp(28px,4vw,42px);}
+  .sec-head .lead{margin-top:14px;}
+
+  /* works-with strip */
+  .stack{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--inset);}
+  .stack .wrap{display:flex;align-items:center;gap:18px 30px;flex-wrap:wrap;justify-content:center;padding-top:26px;padding-bottom:26px;}
+  .stack .label{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);}
+  .chip{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:500;color:var(--muted);}
+  .chip::before{content:"";width:7px;height:7px;border-radius:2px;background:var(--marine-ink);opacity:.55;}
+  .chip.byo{color:var(--marine-ink);font-weight:600;}
+  .chip.byo::before{background:var(--warn);opacity:1;}
+
+  /* workspaces grid */
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:24px;transition:transform .15s,box-shadow .15s,border-color .15s;}
+  .card:hover{transform:translateY(-3px);box-shadow:var(--shadow-sm);border-color:var(--line-2);}
+  .card .ic{width:26px;height:26px;stroke:var(--marine-ink);fill:none;stroke-width:1.6;margin-bottom:14px;}
+  .card h3{font-size:20px;font-weight:600;margin-bottom:7px;}
+  .card p{margin:0;color:var(--muted);font-size:14.5px;}
+  .card .kbd{display:inline-block;margin-top:12px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--faint);background:var(--inset);border:1px solid var(--line);border-radius:5px;padding:2px 7px;}
+
+  /* steps */
+  .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;counter-reset:step;}
+  .step{position:relative;padding-top:20px;}
+  .step::before{counter-increment:step;content:"0" counter(step);font-family:'JetBrains Mono',monospace;
+    font-size:13px;color:var(--marine-ink);font-weight:600;display:block;margin-bottom:10px;}
+  .step h3{font-size:18px;font-weight:600;margin-bottom:6px;}
+  .step p{margin:0;color:var(--muted);font-size:14px;}
+  .step::after{content:"";position:absolute;top:26px;left:32px;right:-9px;height:1px;background:var(--line-2);}
+  .step:last-child::after{display:none;}
+
+  /* continuity feature split */
+  .split{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;}
+  .term{background:var(--ink);border-radius:14px;padding:20px 20px 22px;font-family:'JetBrains Mono',monospace;
+    font-size:13.5px;line-height:1.85;color:#E9E4D9;box-shadow:var(--shadow-lg);overflow-x:auto;}
+  html[data-theme="dark"] .term{background:#0C0B08;border:1px solid var(--line-2);}
+  .term .c-prompt{color:var(--marine-ink);}
+  .term .c-ok{color:#7FB98F;}
+  .term .c-dim{color:#9A917F;}
+  .term .c-warn{color:#E0A06A;}
+  .feat-list{list-style:none;padding:0;margin:22px 0 0;}
+  .feat-list li{position:relative;padding-left:28px;margin-bottom:14px;color:var(--muted);font-size:15px;}
+  .feat-list li b{color:var(--ink);font-weight:600;}
+  .feat-list li::before{content:"";position:absolute;left:0;top:8px;width:14px;height:14px;border-radius:4px;
+    border:2px solid var(--marine-ink);}
+
+  /* principles */
+  .grid3.tight .card{padding:22px;}
+  .grid3.tight .card h3{font-size:17px;}
+  .grid3.tight .card .ic{width:22px;height:22px;margin-bottom:12px;}
+
+  /* open-source band */
+  .band{background:var(--marine);color:#fff;border-radius:var(--radius);padding:52px;text-align:center;position:relative;overflow:hidden;}
+  html[data-theme="dark"] .band{background:linear-gradient(135deg,var(--marine-2),#0B2C37);}
+  .band h2{color:#fff;font-size:clamp(26px,3.6vw,38px);}
+  .band p{color:rgba(255,255,255,.82);max-width:54ch;margin:14px auto 0;}
+  .band .cta-row{margin-top:28px;}
+  .band .btn.primary{background:#fff;color:var(--marine);border-color:#fff;}
+  .band .btn.primary:hover{background:#F0EDE5;}
+  .band .btn.ghost{color:#fff;border-color:rgba(255,255,255,.4);}
+  .band .btn.ghost:hover{background:rgba(255,255,255,.12);}
+  .band .meta{margin-top:22px;font-family:'JetBrains Mono',monospace;font-size:12.5px;color:rgba(255,255,255,.7);display:flex;gap:18px;justify-content:center;flex-wrap:wrap;}
+
+  /* FAQ */
+  .faq{max-width:760px;margin:0 auto;}
+  details{border-bottom:1px solid var(--line);padding:18px 0;}
+  details summary{cursor:pointer;font-weight:600;font-size:17px;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:16px;}
+  details summary::-webkit-details-marker{display:none;}
+  details summary::after{content:"+";font-family:'JetBrains Mono',monospace;color:var(--marine-ink);font-size:20px;transition:transform .2s;}
+  details[open] summary::after{content:"\2212";}
+  details p{margin:12px 0 0;color:var(--muted);font-size:15px;}
+
+  /* footer */
+  footer{border-top:1px solid var(--line);background:var(--inset);padding:56px 0 34px;}
+  .foot-grid{display:grid;grid-template-columns:1.6fr repeat(4,1fr);gap:32px;}
+  .foot-brand .logo{font-size:22px;margin-bottom:10px;}
+  .foot-brand p{color:var(--muted);font-size:14px;max-width:30ch;margin:0;}
+  .foot-col h4{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin:0 0 14px;font-weight:500;}
+  .foot-col a{display:block;text-decoration:none;color:var(--muted);font-size:14px;margin-bottom:10px;transition:color .15s;}
+  .foot-col a:hover{color:var(--ink);}
+  .foot-bottom{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;
+    margin-top:44px;padding-top:22px;border-top:1px solid var(--line);font-size:13px;color:var(--faint);}
+  .foot-bottom .mono{font-size:12px;}
+
+  /* reveal */
+  .reveal{opacity:0;transform:translateY(16px);transition:opacity .6s ease, transform .6s ease;}
+  .reveal.in{opacity:1;transform:none;}
+
+  /* mobile menu */
+  .mobile-menu{display:none;position:fixed;inset:64px 0 0;z-index:55;background:var(--paper);padding:24px;
+    flex-direction:column;gap:4px;transform:translateY(-8px);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;}
+  .mobile-menu.open{opacity:1;transform:none;pointer-events:auto;display:flex;}
+  .mobile-menu a{text-decoration:none;color:var(--ink);font-size:17px;font-weight:500;padding:14px 8px;border-bottom:1px solid var(--line);}
+
+  @media(max-width:920px){
+    .nav-links{display:none;}
+    .logo .tag{display:none;}
+    .hamburger{display:grid;}
+    .grid3,.steps{grid-template-columns:repeat(2,1fr);}
+    .step::after{display:none;}
+    .split{grid-template-columns:1fr;gap:30px;}
+    .foot-grid{grid-template-columns:1fr 1fr;gap:28px;}
+    .foot-brand{grid-column:1 / -1;}
+    .gh-star .gh-label span{display:none;}
+  }
+  @media(max-width:560px){
+    .sec{padding:60px 0;}
+    .grid3,.steps{grid-template-columns:1fr;}
+    .band{padding:36px 22px;}
+    .foot-grid{grid-template-columns:1fr 1fr;}
+    .install{font-size:12.5px;padding:10px 10px 10px 14px;gap:10px;}
+    .nav-right .btn.primary{display:none;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto;}
+    *{animation:none !important;transition:none !important;}
+    .reveal{opacity:1;transform:none;}
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="nav">
+  <div class="wrap nav-in">
+    <a class="logo" href="#top">Comp<span class="dot">Hub</span><span class="tag">control plane</span></a>
+    <div class="nav-links">
+      <a href="#workspaces">Workspaces</a>
+      <a href="#how">How it works</a>
+      <a href="#architecture">Architecture</a>
+      <a href="#opensource">Open source</a>
+      <a href="./demo/">Demo</a>
+    </div>
+    <div class="nav-right">
+      <button class="icon-btn" id="themeToggle" aria-label="Toggle theme">
+        <svg id="themeIcon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M19 5l-1.5 1.5M6.5 17.5L5 19"/></svg>
+      </button>
+      <a class="gh-star" href="https://github.com/hudlix/comphub" target="_blank" rel="noopener" aria-label="Star hudlix/comphub on GitHub">
+        <span class="gh-label"><svg viewBox="0 0 16 16"><path d="M8 0a8 8 0 0 0-2.53 15.59c.4.07.55-.17.55-.38l-.01-1.49c-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.4 7.4 0 0 1 4 0c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48l-.01 2.2c0 .21.15.46.55.38A8 8 0 0 0 8 0Z"/></svg><span>Star</span></span>
+        <span class="gh-count" id="starCount">&#9733;</span>
+      </a>
+      <a class="btn primary" href="#how">Get started</a>
+      <button class="icon-btn hamburger" id="hamburger" aria-label="Menu"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+    </div>
+  </div>
+</nav>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#workspaces">Workspaces</a>
+  <a href="#how">How it works</a>
+  <a href="#architecture">Architecture</a>
+  <a href="#opensource">Open source</a>
+  <a href="./demo/">Live demo</a>
+  <a href="https://github.com/hudlix/comphub" target="_blank" rel="noopener">GitHub &#8594;</a>
+</div>
+
+<span id="top"></span>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="wrap">
+    <div class="badges">
+      <span class="pill"><span class="dotc" style="background:var(--ok)"></span>Apache-2.0</span>
+      <span class="pill"><span class="dotc" style="background:var(--warn)"></span>runs in mock mode &middot; zero credentials</span>
+      <span class="pill mono">v0.1.0-dev</span>
+    </div>
+    <h1>Stay compliant and in control &mdash; <em>without replacing your stack.</em></h1>
+    <p class="lead">CompHub is an open-source control plane for engineering teams. It unifies vulnerability SLAs, delivery cadence, service health, observability, and reporting into one launcher of independently enableable workspaces &mdash; connected to your tools through pluggable adapters.</p>
+    <div class="cta-row">
+      <a class="btn primary" href="#how">Get started</a>
+      <a class="btn ghost" href="./demo/">Launch live demo &#8594;</a>
+    </div>
+    <div class="install" id="installBox" title="Click to copy">
+      <span class="prompt">$</span>
+      <code id="installCmd">npx @hudlix/comphub create my-platform</code>
+      <button class="copy-btn" id="copyBtn" aria-label="Copy install command">
+        <svg viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+      </button>
+    </div>
+
+    <div class="shot reveal">
+      <div class="chrome">
+        <div class="dots"><i style="background:#E5897F"></i><i style="background:#E8C06A"></i><i style="background:#8FC79A"></i></div>
+        <span class="urlbar mono">comphub.io/demo</span>
+      </div>
+      <a href="./demo/" aria-label="Open the live demo"><img src="./assets/hero-launcher.png" alt="CompHub launcher showing six workspaces with live status"></a>
+    </div>
+  </div>
+</header>
+
+<!-- WORKS WITH -->
+<div class="stack">
+  <div class="wrap">
+    <span class="label">Pluggable adapters &mdash;</span>
+    <span class="chip">GitHub</span>
+    <span class="chip">Jira</span>
+    <span class="chip">GitLab</span>
+    <span class="chip">Azure DevOps</span>
+    <span class="chip">Scanners</span>
+    <span class="chip byo">+ bring your own</span>
+  </div>
+</div>
+
+<!-- THESIS -->
+<section class="sec">
+  <div class="wrap sec-head center reveal">
+    <p class="eyebrow">The problem</p>
+    <h2>Compliance and control are scattered across ten tabs.</h2>
+    <p class="lead">SLAs live in the scanner. Delivery lives in the PM tool. Health lives in dashboards. Context lives in someone&rsquo;s head. CompHub sits on top and reads from all of them &mdash; so the state of your apps is one launcher away, not a manual roll-up every Friday.</p>
+  </div>
+</section>
+
+<!-- WORKSPACES -->
+<section class="sec" id="workspaces" style="padding-top:0;">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <p class="eyebrow">Workspaces</p>
+      <h2>Six workspaces. Enable only what you need.</h2>
+      <p class="lead">Each one is an isolated module, switchable per deployment and per user. The launcher and settings are the shared shell.</p>
+    </div>
+    <div class="grid3">
+      <div class="card reveal">
+        <svg class="ic" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+        <h3>Delivery</h3>
+        <p>Epic &rarr; Story &rarr; Task from your PM provider, with a lifecycle stage derived from a configurable rule &mdash; never stored.</p>
+        <span class="kbd">Planning &rarr; Dev &rarr; QA &rarr; Prod</span>
+      </div>
+      <div class="card reveal">
+        <svg class="ic" viewBox="0 0 24 24"><path d="M12 3l8 4v5c0 4.5-3 7.5-8 9-5-1.5-8-4.5-8-9V7z"/></svg>
+        <h3>Vulnerabilities</h3>
+        <p>Scanner findings on a remediation SLA clock. Scan-and-remediate proposes a PR for review &mdash; it never mutates a repo on its own.</p>
+        <span class="kbd">SLA 30 / 60 / 90 &middot; editable</span>
+      </div>
+      <div class="card reveal">
+        <svg class="ic" viewBox="0 0 24 24"><path d="M3 12h4l2-5 4 12 2-7h6"/></svg>
+        <h3>Health</h3>
+        <p>Service uptime, latency, and incidents across your deployment &mdash; the reliability picture at a glance.</p>
+      </div>
+      <div class="card reveal">
+        <svg class="ic" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M16 16l5 5"/></svg>
+        <h3>Observability</h3>
+        <p>Behavioral checks and alert reliability. Answers the question monitoring usually doesn&rsquo;t: is the alerting telling the truth?</p>
+      </div>
+      <div class="card reveal">
+        <svg class="ic" viewBox="0 0 24 24"><path d="M5 21V8M12 21V3M19 21v-9"/></svg>
+        <h3>Reporting</h3>
+        <p>Cross-workspace roll-ups &mdash; one read for the people who never open the other workspaces.</p>
+      </div>
+      <div class="card reveal">
+        <svg class="ic" viewBox="0 0 24 24"><circle cx="6" cy="6" r="2.5"/><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="12" r="2.5"/><path d="M6 8.5v7M8.2 7.2l8 3.6M8.2 16.8l8-3.6"/></svg>
+        <h3>Continuity</h3>
+        <p>Per-repo, committed AI session memory in <span class="mono">.compass/</span> so any teammate &mdash; or a fresh agent &mdash; can resume work.</p>
+        <span class="kbd">git is the system of record</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="sec" id="how" style="background:var(--inset);border-top:1px solid var(--line);border-bottom:1px solid var(--line);">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <p class="eyebrow">How it works</p>
+      <h2>From zero credentials to a live control plane.</h2>
+      <p class="lead">CompHub boots on mock adapters, so you can run the whole thing before connecting anything real.</p>
+    </div>
+    <div class="steps">
+      <div class="step reveal"><h3>Run in mock mode</h3><p>Clone, install, and start. Every workspace runs on demo data &mdash; no secrets required.</p></div>
+      <div class="step reveal"><h3>Connect adapters</h3><p>Swap in a PM, scanner, or SCM provider through config. Vendor-neutral by design.</p></div>
+      <div class="step reveal"><h3>Enable workspaces</h3><p>Turn on the workspaces your team needs, per deployment and per user.</p></div>
+      <div class="step reveal"><h3>Standardize repos</h3><p>One PR installs the <span class="mono">.compass/</span> structure. Resume any session with <span class="mono">/compass</span>.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTINUITY FEATURE -->
+<section class="sec">
+  <div class="wrap split">
+    <div class="reveal">
+      <p class="eyebrow">Continuity</p>
+      <h2 style="font-size:clamp(26px,3.6vw,38px);">Work that survives the person who did it.</h2>
+      <ul class="feat-list">
+        <li><b>Git is the system of record.</b> Session memory is committed in your repos under <span class="mono">.compass/</span>, reviewed in the same PR as the work.</li>
+        <li><b>CompHub reads and launches it.</b> The app standardizes the structure and resumes sessions; it doesn&rsquo;t write your logs.</li>
+        <li><b>A fresh agent can pick up cold.</b> Hand an incident or a half-built feature to anyone &mdash; or any model &mdash; with full context.</li>
+      </ul>
+    </div>
+    <div class="term reveal" aria-hidden="true">
+<span class="c-prompt">$</span> /compass log <span class="c-warn">"debug payment retry timeout"</span><br>
+<span class="c-ok">&#10003;</span> wrote .compass/sessions/2026-06-25-payment-retry.md<br>
+<span class="c-dim"># committed alongside the fix in PR #142</span><br><br>
+<span class="c-prompt">$</span> /compass resume<br>
+<span class="c-dim">&#8635; loading last session &middot; checkout-service</span><br>
+<span class="c-ok">&#10003;</span> context restored &mdash; 3 decisions, 2 open threads<br>
+<span class="c-dim">&nbsp;&nbsp;&#8627; retry backoff still unverified under load</span>
+    </div>
+  </div>
+</section>
+
+<!-- ARCHITECTURE -->
+<section class="sec" id="architecture" style="background:var(--inset);border-top:1px solid var(--line);border-bottom:1px solid var(--line);">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <p class="eyebrow">Architecture</p>
+      <h2>Built to be extended, not forked.</h2>
+    </div>
+    <div class="grid3 tight">
+      <div class="card reveal"><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg><h3>Pluggable adapter ports</h3><p><span class="mono">PmProvider</span>, <span class="mono">ScannerProvider</span>, <span class="mono">ScmProvider</span> &mdash; concrete vendors are just example implementations.</p></div>
+      <div class="card reveal"><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="7" rx="1.5"/><rect x="3" y="13" width="18" height="7" rx="1.5"/></svg><h3>One UI app, one API app</h3><p>A modular monorepo. Each workspace is cleanly isolated, so any one can be promoted to its own deployable later.</p></div>
+      <div class="card reveal"><svg class="ic" viewBox="0 0 24 24"><path d="M12 3v18M5 8l7-5 7 5M5 8v8l7 5 7-5V8"/></svg><h3>Human-in-the-loop</h3><p>Mutations default to a dry-run and a PR. Nothing changes your repos without a review.</p></div>
+      <div class="card reveal"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg><h3>Policy as configuration</h3><p>SLA windows, the lifecycle stage rule, enablement &mdash; all editable per deployment, not hardcoded.</p></div>
+      <div class="card reveal"><svg class="ic" viewBox="0 0 24 24"><circle cx="6" cy="6" r="2.5"/><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="12" r="2.5"/><path d="M6 8.5v7M8.2 7.2l8 3.6M8.2 16.8l8-3.6"/></svg><h3>Git is the system of record</h3><p>Continuity memory lives in your repos, not a CompHub database you can&rsquo;t leave.</p></div>
+      <div class="card reveal"><svg class="ic" viewBox="0 0 24 24"><path d="M12 3l8 4v5c0 4.5-3 7.5-8 9-5-1.5-8-4.5-8-9V7z"/></svg><h3>Open-core ready</h3><p>The enablement model is a clean seam. Enterprise concerns stay separable without bending the open core.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- OPEN SOURCE BAND -->
+<section class="sec" id="opensource">
+  <div class="wrap">
+    <div class="band reveal">
+      <h2>Built in the open.</h2>
+      <p>CompHub is Apache-2.0 and self-hosted. Read the code, file an issue, open a PR, or run the whole thing on mock data this afternoon. A project of the hudlix org.</p>
+      <div class="cta-row">
+        <a class="btn primary" href="https://github.com/hudlix/comphub" target="_blank" rel="noopener">&#9733; Star on GitHub</a>
+        <a class="btn ghost" href="https://github.com/hudlix/comphub/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">Contributing guide</a>
+      </div>
+      <div class="meta">
+        <span>Apache-2.0</span><span>&middot;</span><span>self-hosted</span><span>&middot;</span><span>zero credentials to try</span><span>&middot;</span><span>DCO sign-off</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="sec" style="padding-top:0;">
+  <div class="wrap">
+    <div class="sec-head center reveal"><p class="eyebrow">FAQ</p><h2>The usual questions.</h2></div>
+    <div class="faq reveal">
+      <details open><summary>Is CompHub free?</summary><p>Yes. The core is open source under Apache-2.0 and you self-host it. A paid enterprise tier (SSO, fine-grained RBAC, multi-tenant, audit, advanced reporting) is planned later as open-core &mdash; the core stays open.</p></details>
+      <details><summary>Do I have to use Jira or GitHub?</summary><p>No. Integrations are pluggable adapter ports, and a mock adapter ships on by default. Jira, GitHub, GitLab, and scanners are example adapters; you can add your own.</p></details>
+      <details><summary>Where does my data live?</summary><p>In your deployment. Continuity session memory lives in your own git repos under <span class="mono">.compass/</span> &mdash; there&rsquo;s no CompHub database you can&rsquo;t walk away from.</p></details>
+      <details><summary>Does it replace my existing tools?</summary><p>No &mdash; that&rsquo;s the point. CompHub reads from the tools you already use and gives you one place to see and act on compliance and delivery state.</p></details>
+      <details><summary>What&rsquo;s the status?</summary><p>Early. The product site and specs are public now; the application scaffold is the next milestone. Follow along or contribute on GitHub.</p></details>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <a class="logo" href="#top">Comp<span class="dot">Hub</span></a>
+        <p>The open-source control plane for engineering compliance. A project of the hudlix org.</p>
+      </div>
+      <div class="foot-col">
+        <h4>Product</h4>
+        <a href="#workspaces">Workspaces</a>
+        <a href="#how">How it works</a>
+        <a href="./demo/">Live demo</a>
+        <a href="#architecture">Architecture</a>
+      </div>
+      <div class="foot-col">
+        <h4>Resources</h4>
+        <a href="https://github.com/hudlix/comphub#readme" target="_blank" rel="noopener">README</a>
+        <a href="https://github.com/hudlix/comphub/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">Contributing</a>
+        <a href="https://github.com/hudlix/comphub/blob/main/LICENSE" target="_blank" rel="noopener">License</a>
+      </div>
+      <div class="foot-col">
+        <h4>Community</h4>
+        <a href="https://github.com/hudlix/comphub" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://github.com/hudlix/comphub/issues" target="_blank" rel="noopener">Issues</a>
+        <a href="https://github.com/hudlix/comphub/discussions" target="_blank" rel="noopener">Discussions</a>
+      </div>
+      <div class="foot-col">
+        <h4>Legal</h4>
+        <a href="https://github.com/hudlix/comphub/blob/main/LICENSE" target="_blank" rel="noopener">Apache-2.0</a>
+        <a href="https://github.com/hudlix/comphub/blob/main/CONTRIBUTING.md#code-of-conduct" target="_blank" rel="noopener">Code of conduct</a>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>&copy; 2026 hudlix &middot; CompHub</span>
+      <span class="mono">Apache-2.0 &middot; v0.1.0-dev</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const root = document.documentElement;
+  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) root.setAttribute('data-theme','dark');
+  const themeIcon = document.getElementById('themeIcon');
+  function syncThemeIcon(){
+    const dark = root.getAttribute('data-theme') === 'dark';
+    themeIcon.innerHTML = dark
+      ? '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/>'
+      : '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M19 5l-1.5 1.5M6.5 17.5L5 19"/>';
+  }
+  syncThemeIcon();
+  document.getElementById('themeToggle').addEventListener('click', () => {
+    root.setAttribute('data-theme', root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+    syncThemeIcon();
+  });
+
+  const nav = document.getElementById('nav');
+  const onScroll = () => nav.classList.toggle('scrolled', window.scrollY > 8);
+  onScroll(); window.addEventListener('scroll', onScroll, {passive:true});
+
+  const menu = document.getElementById('mobileMenu');
+  document.getElementById('hamburger').addEventListener('click', () => menu.classList.toggle('open'));
+  menu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => menu.classList.remove('open')));
+
+  const copyBtn = document.getElementById('copyBtn');
+  const cmd = document.getElementById('installCmd').textContent;
+  function copyCmd(){
+    if(!navigator.clipboard) return;
+    navigator.clipboard.writeText(cmd).then(() => {
+      copyBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>';
+      setTimeout(() => { copyBtn.innerHTML = '<svg viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>'; }, 1400);
+    }).catch(()=>{});
+  }
+  document.getElementById('installBox').addEventListener('click', copyCmd);
+
+  (async () => {
+    try {
+      const r = await fetch('https://api.github.com/repos/hudlix/comphub');
+      if (!r.ok) throw 0;
+      const d = await r.json();
+      const n = d.stargazers_count ?? 0;
+      document.getElementById('starCount').textContent = n >= 1000 ? (n/1000).toFixed(1)+'k' : n;
+    } catch (e) { /* keep the star glyph fallback */ }
+  })();
+
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, {threshold:0.12});
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+</body>
+</html>

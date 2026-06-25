@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CompHub — control plane mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;450;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FBFAF7;        /* warm app canvas */
+    --surface:#FFFFFF;      /* cards */
+    --surface-2:#F6F3EC;    /* inset / hover */
+    --ink:#1A1815;          /* primary text */
+    --muted:#6B6357;        /* secondary text */
+    --faint:#9A9183;        /* tertiary */
+    --line:#E8E2D6;         /* hairline */
+    --line-2:#D8D0C0;       /* stronger hairline */
+
+    --marine:#16485A;       /* brand / primary action */
+    --marine-soft:#E5EEF0;  /* marine tint */
+
+    /* semantic severity scale — the signature system */
+    --ok:#3F7D5B;     --ok-bg:#EAF2EC;
+    --warn:#C2703D;   --warn-bg:#F8EEE4;   /* sienna */
+    --breach:#B23A2E; --breach-bg:#F8E8E5; /* clay */
+    --info:#46637A;   --info-bg:#EAEFF3;
+
+    --radius:10px;
+    --radius-sm:7px;
+    --shadow:0 1px 2px rgba(26,24,21,.04), 0 4px 14px rgba(26,24,21,.05);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;height:100%;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',system-ui,sans-serif;
+    font-size:14px;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  .mono{font-family:'JetBrains Mono',monospace;}
+  button{font-family:inherit;cursor:pointer;}
+  ::selection{background:var(--marine-soft);}
+
+  /* ---------- App frame ---------- */
+  .app{display:grid;grid-template-columns:236px 1fr;grid-template-rows:54px 1fr;min-height:100vh;}
+
+  /* ---------- Top bar ---------- */
+  .topbar{
+    grid-column:1 / -1;
+    display:flex;align-items:center;gap:16px;
+    padding:0 18px;
+    border-bottom:1px solid var(--line);
+    background:var(--surface);
+  }
+  .brand{display:flex;align-items:baseline;gap:9px;}
+  .brand .mark{
+    font-family:'Fraunces',serif;font-weight:600;font-size:19px;letter-spacing:-.01em;color:var(--ink);
+  }
+  .brand .mark .dot{color:var(--marine);}
+  .brand .tag{font-size:11px;color:var(--faint);letter-spacing:.02em;}
+  .topbar .spacer{flex:1;}
+  .deployment{
+    display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--muted);
+  }
+  .deployment .sep{color:var(--line-2);}
+  .mock-badge{
+    display:inline-flex;align-items:center;gap:7px;
+    font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:500;
+    color:var(--warn);background:var(--warn-bg);
+    padding:4px 9px;border-radius:999px;border:1px solid #EBD8C6;
+  }
+  .mock-badge .pulse{width:6px;height:6px;border-radius:50%;background:var(--warn);}
+  .avatar{
+    width:28px;height:28px;border-radius:50%;
+    background:var(--marine);color:#fff;
+    display:grid;place-items:center;font-size:11px;font-weight:600;letter-spacing:.02em;
+  }
+
+  /* ---------- Left rail ---------- */
+  .rail{
+    border-right:1px solid var(--line);
+    background:var(--surface);
+    padding:16px 12px;
+    display:flex;flex-direction:column;
+    gap:2px;
+  }
+  .rail .eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);
+    padding:6px 10px 8px;
+  }
+  .nav-item{
+    display:flex;align-items:center;gap:11px;width:100%;text-align:left;
+    background:none;border:none;border-radius:var(--radius-sm);
+    padding:8px 10px;color:var(--muted);font-size:13.5px;font-weight:450;
+    transition:background .12s, color .12s;
+  }
+  .nav-item:hover{background:var(--surface-2);color:var(--ink);}
+  .nav-item[aria-current="true"]{background:var(--marine-soft);color:var(--marine);font-weight:500;}
+  .nav-item .ic{width:17px;height:17px;flex:none;stroke:currentColor;fill:none;stroke-width:1.6;}
+  .nav-item .lbl{flex:1;}
+  .nav-item .state{
+    width:7px;height:7px;border-radius:50%;flex:none;background:var(--ok);
+    box-shadow:0 0 0 3px var(--ok-bg);
+  }
+  .nav-item .state.off{background:var(--line-2);box-shadow:0 0 0 3px var(--surface-2);}
+  .rail .divider{height:1px;background:var(--line);margin:10px 6px;}
+  .rail .foot{margin-top:auto;padding:10px;font-size:11px;color:var(--faint);line-height:1.45;}
+  .rail .foot a{color:var(--muted);text-decoration:none;border-bottom:1px solid var(--line-2);}
+
+  /* ---------- Main ---------- */
+  .main{overflow-y:auto;padding:30px 36px 60px;}
+  .view{display:none;animation:fade .22s ease;max-width:1040px;}
+  .view.active{display:block;}
+  @keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+
+  .page-head{margin-bottom:26px;}
+  .page-head h1{
+    font-family:'Fraunces',serif;font-weight:500;font-size:30px;letter-spacing:-.015em;
+    margin:0 0 4px;
+  }
+  .page-head .sub{color:var(--muted);font-size:13.5px;}
+  .page-head .sub .mono{color:var(--ink);}
+
+  .row-between{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;}
+  .policy-chip{
+    font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--muted);
+    background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:6px 12px;
+    white-space:nowrap;
+  }
+  .policy-chip b{color:var(--ink);font-weight:600;}
+
+  /* ---------- Launcher grid ---------- */
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+  @media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr);}}
+  .ws-card{
+    text-align:left;background:var(--surface);border:1px solid var(--line);
+    border-radius:var(--radius);padding:18px 18px 16px;
+    display:flex;flex-direction:column;gap:14px;min-height:138px;
+    transition:transform .14s, box-shadow .14s, border-color .14s;
+  }
+  .ws-card:hover{transform:translateY(-2px);box-shadow:var(--shadow);border-color:var(--line-2);}
+  .ws-card:disabled{opacity:.55;cursor:default;}
+  .ws-card:disabled:hover{transform:none;box-shadow:none;border-color:var(--line);}
+  .ws-top{display:flex;align-items:center;justify-content:space-between;}
+  .ws-name{display:flex;align-items:center;gap:9px;font-weight:600;font-size:14.5px;}
+  .ws-name .ic{width:17px;height:17px;stroke:var(--marine);fill:none;stroke-width:1.6;}
+  .ws-metric{display:flex;align-items:baseline;gap:8px;margin-top:auto;}
+  .ws-metric .num{font-family:'Fraunces',serif;font-size:27px;font-weight:500;line-height:1;}
+  .ws-metric .unit{font-size:12px;color:var(--muted);}
+  .ws-note{font-size:12px;color:var(--muted);}
+  .badge{
+    font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:600;letter-spacing:.04em;
+    text-transform:uppercase;padding:3px 7px;border-radius:5px;
+  }
+  .badge.ok{color:var(--ok);background:var(--ok-bg);}
+  .badge.warn{color:var(--warn);background:var(--warn-bg);}
+  .badge.breach{color:var(--breach);background:var(--breach-bg);}
+  .badge.info{color:var(--info);background:var(--info-bg);}
+  .badge.off{color:var(--faint);background:var(--surface-2);}
+
+  /* ---------- Generic card / list ---------- */
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;}
+  .card + .card{margin-top:14px;}
+  .list-row{display:flex;align-items:center;gap:16px;padding:15px 18px;border-top:1px solid var(--line);}
+  .list-row:first-child{border-top:none;}
+  .list-row:hover{background:#FCFBF8;}
+
+  /* SLA component — the signature */
+  .finding{flex-direction:column;align-items:stretch;gap:11px;}
+  .finding-head{display:flex;align-items:center;gap:12px;}
+  .finding-repo{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;}
+  .finding-cve{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);}
+  .finding-head .spacer{flex:1;}
+  .sla{display:flex;align-items:center;gap:12px;}
+  .sla-track{position:relative;flex:1;height:8px;border-radius:999px;background:var(--surface-2);overflow:hidden;}
+  .sla-fill{position:absolute;inset:0;border-radius:999px;width:0;}
+  .sla-fill.ok{background:var(--ok);}
+  .sla-fill.warn{background:var(--warn);}
+  .sla-fill.breach{background:var(--breach);}
+  .sla-clock{font-family:'JetBrains Mono',monospace;font-size:12.5px;font-weight:600;white-space:nowrap;min-width:96px;text-align:right;}
+  .sla-clock.ok{color:var(--ok);}
+  .sla-clock.warn{color:var(--warn);}
+  .sla-clock.breach{color:var(--breach);}
+
+  /* Delivery pipeline */
+  .pipeline{
+    display:flex;align-items:center;gap:0;margin:0 0 20px;
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+    padding:6px;width:fit-content;
+  }
+  .stage{
+    font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:500;color:var(--faint);
+    padding:7px 14px;border-radius:var(--radius-sm);position:relative;
+  }
+  .stage.on{color:var(--marine);background:var(--marine-soft);font-weight:600;}
+  .stage .arrow{color:var(--line-2);margin:0 2px;}
+
+  .epic{padding:16px 18px;}
+  .epic-top{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+  .epic-title{font-weight:600;font-size:14.5px;}
+  .epic-top .spacer{flex:1;}
+  .epic-meta{font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--muted);}
+  .stage-dot{display:inline-flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;}
+  .stage-dot::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--marine);}
+  .derived{font-size:10.5px;color:var(--faint);font-style:italic;}
+
+  /* Continuity */
+  .repo-row{display:flex;align-items:center;gap:14px;padding:16px 18px;border-top:1px solid var(--line);}
+  .repo-row:first-child{border-top:none;}
+  .repo-name{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;min-width:160px;}
+  .repo-session{font-size:12.5px;color:var(--muted);flex:1;}
+  .repo-session .cmd{font-family:'JetBrains Mono',monospace;color:var(--marine);}
+  .btn{
+    font-size:12.5px;font-weight:500;padding:7px 13px;border-radius:var(--radius-sm);
+    border:1px solid var(--line-2);background:var(--surface);color:var(--ink);white-space:nowrap;
+    transition:background .12s,border-color .12s;
+  }
+  .btn:hover{background:var(--surface-2);}
+  .btn.primary{background:var(--marine);border-color:var(--marine);color:#fff;}
+  .btn.primary:hover{background:#0F3947;}
+
+  .note{
+    display:flex;gap:10px;align-items:flex-start;
+    background:var(--info-bg);border:1px solid #D8E1E8;border-radius:var(--radius-sm);
+    padding:12px 14px;font-size:12.5px;color:#34495C;margin-top:18px;line-height:1.5;
+  }
+  .note .ic{width:16px;height:16px;flex:none;stroke:var(--info);fill:none;stroke-width:1.6;margin-top:1px;}
+  .note code{font-family:'JetBrains Mono',monospace;background:#fff;border:1px solid #D8E1E8;border-radius:4px;padding:1px 5px;font-size:11.5px;}
+
+  /* Settings */
+  .setting-row{display:flex;align-items:center;gap:16px;padding:16px 18px;border-top:1px solid var(--line);}
+  .setting-row:first-child{border-top:none;}
+  .setting-row .label{flex:1;}
+  .setting-row .label .t{font-weight:500;}
+  .setting-row .label .d{font-size:12px;color:var(--muted);margin-top:2px;}
+  .toggle{width:38px;height:22px;border-radius:999px;border:none;background:var(--marine);position:relative;flex:none;transition:background .15s;}
+  .toggle.off{background:var(--line-2);}
+  .toggle::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform .15s;}
+  .toggle.off::after{transform:translateX(0);}
+  .toggle:not(.off)::after{transform:translateX(16px);}
+
+  .section-label{
+    font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--faint);margin:0 0 11px;
+  }
+
+  a.inline{color:var(--marine);text-decoration:none;border-bottom:1px solid var(--marine-soft);}
+
+  :focus-visible{outline:2px solid var(--marine);outline-offset:2px;border-radius:4px;}
+
+  /* Hamburger + drawer backdrop — hidden on desktop, shown on mobile */
+  .hamburger{
+    display:none;align-items:center;justify-content:center;
+    width:36px;height:36px;margin-left:-6px;border:none;background:none;border-radius:8px;flex:none;
+  }
+  .hamburger:hover{background:var(--surface-2);}
+  .hamburger svg{width:20px;height:20px;stroke:var(--ink);stroke-width:1.8;fill:none;}
+  .backdrop{
+    display:none;position:fixed;inset:0;z-index:40;
+    background:rgba(26,24,21,.32);backdrop-filter:blur(1px);
+  }
+  .backdrop.show{display:block;}
+
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none !important;transition:none !important;}
+  }
+
+  /* ---------- Tablet ---------- */
+  @media(max-width:1000px){
+    .app{grid-template-columns:204px 1fr;}
+    .main{padding:26px 24px 56px;}
+    .grid{grid-template-columns:repeat(2,1fr);}
+  }
+
+  /* ---------- Mobile ---------- */
+  @media(max-width:720px){
+    .app{grid-template-columns:1fr;grid-template-rows:54px 1fr;}
+    .hamburger{display:flex;}
+
+    /* rail becomes an off-canvas drawer */
+    .rail{
+      position:fixed;top:0;left:0;bottom:0;z-index:50;
+      width:264px;max-width:84vw;
+      border-right:1px solid var(--line);
+      transform:translateX(-100%);
+      transition:transform .24s ease;
+      box-shadow:0 0 40px rgba(26,24,21,.12);
+      overflow-y:auto;
+    }
+    .rail.open{transform:translateX(0);}
+    .nav-item{padding:11px 12px;font-size:14.5px;}  /* larger touch targets */
+    .rail .foot{display:block;}
+
+    /* top bar: drawer trigger + brand, trimmed meta */
+    .brand .tag{display:none;}
+    .deployment .full,.deployment .mono,.deployment .sep,.badge-suffix{display:none;}
+    .mock-badge{font-size:10px;padding:4px 8px;}
+    .topbar{gap:10px;padding:0 14px;}
+
+    .main{padding:20px 16px 56px;}
+    .page-head h1{font-size:25px;}
+    .grid{grid-template-columns:1fr;}
+
+    /* heading + policy chip stack */
+    .row-between{flex-direction:column;align-items:flex-start;gap:10px;}
+    .policy-chip{white-space:normal;}
+
+    /* delivery pipeline scrolls instead of breaking */
+    .pipeline{width:auto;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;flex-wrap:nowrap;}
+    .stage{white-space:nowrap;}
+
+    /* vulnerability finding: let the head wrap, clock sits under the bar */
+    .finding-head{flex-wrap:wrap;gap:8px;}
+    .finding-head .spacer{display:none;}
+    .finding-head .btn{margin-left:auto;}
+    .finding-cve{width:100%;order:5;}
+    .sla-clock{min-width:0;}
+
+    /* continuity + epic rows stack */
+    .repo-row{flex-wrap:wrap;gap:8px 12px;}
+    .repo-name{min-width:0;}
+    .repo-session{flex-basis:100%;order:4;}
+    .repo-row .btn{margin-left:auto;}
+
+    /* generic list rows wrap rather than squeeze */
+    .list-row{flex-wrap:wrap;gap:8px 12px;}
+    .finding-repo{min-width:0;}
+
+    .setting-row{gap:12px;padding:14px 16px;}
+  }
+
+  @media(max-width:380px){
+    .page-head h1{font-size:22px;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Top bar -->
+  <header class="topbar">
+    <button class="hamburger" id="navToggle" aria-label="Open navigation" aria-expanded="false">
+      <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
+    <div class="brand">
+      <span class="mark">Comp<span class="dot">Hub</span></span>
+      <span class="tag">control plane</span>
+    </div>
+    <div class="spacer"></div>
+    <div class="deployment">
+      <span class="full">deployment</span>
+      <span class="mono">acme-platform</span>
+      <span class="sep">·</span>
+      <span class="mock-badge"><span class="pulse"></span>mock mode<span class="badge-suffix"> — no credentials</span></span>
+    </div>
+    <div class="avatar" title="Pravallika">PK</div>
+  </header>
+
+  <!-- Left rail -->
+  <nav class="rail">
+    <div class="eyebrow">Workspaces</div>
+    <button class="nav-item" aria-current="true" data-view="launcher">
+      <svg class="ic" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+      <span class="lbl">Launcher</span>
+    </button>
+    <button class="nav-item" data-view="delivery">
+      <svg class="ic" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+      <span class="lbl">Delivery</span><span class="state"></span>
+    </button>
+    <button class="nav-item" data-view="vulnerabilities">
+      <svg class="ic" viewBox="0 0 24 24"><path d="M12 3l8 4v5c0 4.5-3 7.5-8 9-5-1.5-8-4.5-8-9V7z"/></svg>
+      <span class="lbl">Vulnerabilities</span><span class="state"></span>
+    </button>
+    <button class="nav-item" data-view="health">
+      <svg class="ic" viewBox="0 0 24 24"><path d="M3 12h4l2-5 4 12 2-7h6"/></svg>
+      <span class="lbl">Health</span><span class="state"></span>
+    </button>
+    <button class="nav-item" data-view="observability">
+      <svg class="ic" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M16 16l5 5"/></svg>
+      <span class="lbl">Observability</span><span class="state"></span>
+    </button>
+    <button class="nav-item" data-view="reporting">
+      <svg class="ic" viewBox="0 0 24 24"><path d="M5 21V8M12 21V3M19 21v-9"/></svg>
+      <span class="lbl">Reporting</span><span class="state"></span>
+    </button>
+    <button class="nav-item" data-view="continuity">
+      <svg class="ic" viewBox="0 0 24 24"><circle cx="6" cy="6" r="2.5"/><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="12" r="2.5"/><path d="M6 8.5v7M8.2 7.2l8 3.6M8.2 16.8l8-3.6"/></svg>
+      <span class="lbl">Continuity</span><span class="state"></span>
+    </button>
+
+    <div class="divider"></div>
+    <button class="nav-item" data-view="settings">
+      <svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg>
+      <span class="lbl">Settings</span>
+    </button>
+
+    <div class="foot">
+      Open source · <a href="#">hudlix/comphub</a><br>
+      Apache-2.0 · v0.1.0-dev
+    </div>
+  </nav>
+
+  <!-- Drawer backdrop (mobile) -->
+  <div class="backdrop" id="backdrop"></div>
+
+  <!-- Main -->
+  <main class="main">
+
+    <!-- LAUNCHER -->
+    <section class="view active" id="launcher">
+      <div class="page-head">
+        <h1>Control plane</h1>
+        <div class="sub">Six workspaces enabled for <span class="mono">acme-platform</span> · running on mock adapters</div>
+      </div>
+      <div class="grid">
+        <button class="ws-card" data-view="delivery">
+          <div class="ws-top">
+            <span class="ws-name"><svg class="ic" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Delivery</span>
+            <span class="badge info">5 epics</span>
+          </div>
+          <div class="ws-metric"><span class="num">2</span><span class="unit">in QA · 1 shipping this week</span></div>
+        </button>
+
+        <button class="ws-card" data-view="vulnerabilities">
+          <div class="ws-top">
+            <span class="ws-name"><svg class="ic" viewBox="0 0 24 24"><path d="M12 3l8 4v5c0 4.5-3 7.5-8 9-5-1.5-8-4.5-8-9V7z"/></svg>Vulnerabilities</span>
+            <span class="badge breach">1 breached</span>
+          </div>
+          <div class="ws-metric"><span class="num">3</span><span class="unit">findings approaching SLA</span></div>
+        </button>
+
+        <button class="ws-card" data-view="health">
+          <div class="ws-top">
+            <span class="ws-name"><svg class="ic" viewBox="0 0 24 24"><path d="M3 12h4l2-5 4 12 2-7h6"/></svg>Health</span>
+            <span class="badge ok">healthy</span>
+          </div>
+          <div class="ws-metric"><span class="num mono">99.95%</span><span class="unit">30-day uptime · 0 incidents</span></div>
+        </button>
+
+        <button class="ws-card" data-view="observability">
+          <div class="ws-top">
+            <span class="ws-name"><svg class="ic" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M16 16l5 5"/></svg>Observability</span>
+            <span class="badge warn">2 flaky</span>
+          </div>
+          <div class="ws-metric"><span class="num">48</span><span class="unit">behavioral checks · 46 reliable</span></div>
+        </button>
+
+        <button class="ws-card" data-view="reporting">
+          <div class="ws-top">
+            <span class="ws-name"><svg class="ic" viewBox="0 0 24 24"><path d="M5 21V8M12 21V3M19 21v-9"/></svg>Reporting</span>
+            <span class="badge info">weekly</span>
+          </div>
+          <div class="ws-metric"><span class="num">4</span><span class="unit">roll-ups across workspaces</span></div>
+        </button>
+
+        <button class="ws-card" data-view="continuity">
+          <div class="ws-top">
+            <span class="ws-name"><svg class="ic" viewBox="0 0 24 24"><circle cx="6" cy="6" r="2.5"/><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="12" r="2.5"/><path d="M6 8.5v7M8.2 7.2l8 3.6M8.2 16.8l8-3.6"/></svg>Continuity</span>
+            <span class="badge ok">3 repos</span>
+          </div>
+          <div class="ws-metric"><span class="num">12</span><span class="unit">sessions logged in <span class="mono">.compass/</span></span></div>
+        </button>
+      </div>
+
+      <div class="note">
+        <svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg>
+        <div>You're in <b>mock mode</b> — every workspace is running on demo adapters with no credentials connected. Connect a PM, scanner, or SCM provider in <a class="inline" data-view="settings" href="#">Settings → Integrations</a> to replace the demo data.</div>
+      </div>
+    </section>
+
+    <!-- DELIVERY -->
+    <section class="view" id="delivery">
+      <div class="page-head">
+        <div class="row-between">
+          <div>
+            <h1>Delivery</h1>
+            <div class="sub">Epic → Story → Task from your PM provider · stage is <span class="mono">derived</span>, never stored</div>
+          </div>
+          <span class="policy-chip">stage rule: <b>board column</b></span>
+        </div>
+      </div>
+
+      <div class="pipeline">
+        <span class="stage">Planning</span><span class="stage arrow">→</span>
+        <span class="stage">Scoping</span><span class="stage arrow">→</span>
+        <span class="stage on">Dev</span><span class="stage arrow">→</span>
+        <span class="stage">QA</span><span class="stage arrow">→</span>
+        <span class="stage">Prod</span>
+      </div>
+
+      <div class="card">
+        <div class="epic">
+          <div class="epic-top">
+            <span class="epic-title">Unified checkout</span>
+            <span class="spacer"></span>
+            <span class="stage-dot">Dev</span>
+          </div>
+          <span class="epic-meta">8 stories · 23 tasks · checkout-service</span>
+          <span class="derived"> — derived from column “In Development”</span>
+        </div>
+        <div class="epic" style="border-top:1px solid var(--line);">
+          <div class="epic-top">
+            <span class="epic-title">Payment retry &amp; idempotency</span>
+            <span class="spacer"></span>
+            <span class="stage-dot">QA</span>
+          </div>
+          <span class="epic-meta">5 stories · 14 tasks · payments-api</span>
+          <span class="derived"> — derived from column “In QA”</span>
+        </div>
+        <div class="epic" style="border-top:1px solid var(--line);">
+          <div class="epic-top">
+            <span class="epic-title">Address autocomplete</span>
+            <span class="spacer"></span>
+            <span class="stage-dot">Scoping</span>
+          </div>
+          <span class="epic-meta">3 stories · 7 tasks · web-storefront</span>
+          <span class="derived"> — derived from column “Scoping”</span>
+        </div>
+      </div>
+
+      <div class="note">
+        <svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg>
+        <div>Change the stage rule to a <b>status</b> or <b>label</b> in Settings — the pipeline re-derives without migrating any data, because the stage isn't stored.</div>
+      </div>
+    </section>
+
+    <!-- VULNERABILITIES -->
+    <section class="view" id="vulnerabilities">
+      <div class="page-head">
+        <div class="row-between">
+          <div>
+            <h1>Vulnerabilities</h1>
+            <div class="sub">Scanner findings with a remediation clock · policy is configuration, not hardcoded</div>
+          </div>
+          <span class="policy-chip">SLA: <b>30 / 60 / 90</b> days · crit / high / med</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="list-row finding">
+          <div class="finding-head">
+            <span class="finding-repo">checkout-service</span>
+            <span class="badge breach">critical</span>
+            <span class="finding-cve">CVE-2024-31080</span>
+            <span class="spacer"></span>
+            <button class="btn">Open remediation</button>
+          </div>
+          <div class="sla">
+            <div class="sla-track"><div class="sla-fill breach" data-pct="118"></div></div>
+            <span class="sla-clock breach">BREACHED · −4d</span>
+          </div>
+        </div>
+
+        <div class="list-row finding">
+          <div class="finding-head">
+            <span class="finding-repo">payments-api</span>
+            <span class="badge breach">critical</span>
+            <span class="finding-cve">CVE-2025-10422</span>
+            <span class="spacer"></span>
+            <button class="btn">Open remediation</button>
+          </div>
+          <div class="sla">
+            <div class="sla-track"><div class="sla-fill warn" data-pct="84"></div></div>
+            <span class="sla-clock warn">4d left of 30</span>
+          </div>
+        </div>
+
+        <div class="list-row finding">
+          <div class="finding-head">
+            <span class="finding-repo">web-storefront</span>
+            <span class="badge warn">high</span>
+            <span class="finding-cve">CVE-2025-09915</span>
+            <span class="spacer"></span>
+            <button class="btn">Open remediation</button>
+          </div>
+          <div class="sla">
+            <div class="sla-track"><div class="sla-fill warn" data-pct="72"></div></div>
+            <span class="sla-clock warn">17d left of 60</span>
+          </div>
+        </div>
+
+        <div class="list-row finding">
+          <div class="finding-head">
+            <span class="finding-repo">notifications-worker</span>
+            <span class="badge info">medium</span>
+            <span class="finding-cve">CVE-2025-08120</span>
+            <span class="spacer"></span>
+            <button class="btn">Open remediation</button>
+          </div>
+          <div class="sla">
+            <div class="sla-track"><div class="sla-fill ok" data-pct="38"></div></div>
+            <span class="sla-clock ok">56d left of 90</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="note">
+        <svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg>
+        <div>The remediation workflow defaults to <b>dry-run</b>: scan-and-remediate proposes a fix as a PR for human review — it never mutates a repo on its own.</div>
+      </div>
+    </section>
+
+    <!-- HEALTH -->
+    <section class="view" id="health">
+      <div class="page-head">
+        <h1>Health</h1>
+        <div class="sub">Service uptime, latency, and incidents across <span class="mono">acme-platform</span></div>
+      </div>
+      <div class="grid">
+        <div class="ws-card" style="cursor:default;">
+          <div class="ws-top"><span class="ws-name">checkout-service</span><span class="badge ok">up</span></div>
+          <div class="ws-metric"><span class="num mono">99.98%</span><span class="unit">p95 142ms</span></div>
+        </div>
+        <div class="ws-card" style="cursor:default;">
+          <div class="ws-top"><span class="ws-name">payments-api</span><span class="badge ok">up</span></div>
+          <div class="ws-metric"><span class="num mono">99.91%</span><span class="unit">p95 210ms</span></div>
+        </div>
+        <div class="ws-card" style="cursor:default;">
+          <div class="ws-top"><span class="ws-name">web-storefront</span><span class="badge warn">degraded</span></div>
+          <div class="ws-metric"><span class="num mono">99.40%</span><span class="unit">p95 870ms · elevated</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- OBSERVABILITY -->
+    <section class="view" id="observability">
+      <div class="page-head">
+        <h1>Observability</h1>
+        <div class="sub">Behavioral checks and alert reliability — is the alerting telling the truth?</div>
+      </div>
+      <div class="card">
+        <div class="list-row"><span class="finding-repo">checkout · place order</span><span class="spacer"></span><span class="badge ok">reliable</span><span class="mono" style="color:var(--muted);font-size:12px;min-width:90px;text-align:right;">0 false alerts</span></div>
+        <div class="list-row"><span class="finding-repo">payments · capture</span><span class="spacer"></span><span class="badge warn">flaky</span><span class="mono" style="color:var(--muted);font-size:12px;min-width:90px;text-align:right;">3 false alerts</span></div>
+        <div class="list-row"><span class="finding-repo">storefront · search</span><span class="spacer"></span><span class="badge warn">flaky</span><span class="mono" style="color:var(--muted);font-size:12px;min-width:90px;text-align:right;">2 false alerts</span></div>
+      </div>
+    </section>
+
+    <!-- REPORTING -->
+    <section class="view" id="reporting">
+      <div class="page-head">
+        <h1>Reporting</h1>
+        <div class="sub">Cross-workspace roll-ups — one read for the people who don't open the others</div>
+      </div>
+      <div class="card">
+        <div class="list-row"><span class="finding-repo" style="min-width:0;">This week's delivery</span><span class="spacer"></span><span style="color:var(--muted);font-size:13px;">1 epic shipped · 2 in QA</span></div>
+        <div class="list-row"><span class="finding-repo" style="min-width:0;">SLA posture</span><span class="spacer"></span><span style="color:var(--muted);font-size:13px;">1 breached · 2 approaching</span></div>
+        <div class="list-row"><span class="finding-repo" style="min-width:0;">Reliability</span><span class="spacer"></span><span style="color:var(--muted);font-size:13px;">99.95% uptime · 0 incidents</span></div>
+        <div class="list-row"><span class="finding-repo" style="min-width:0;">Alert trust</span><span class="spacer"></span><span style="color:var(--muted);font-size:13px;">46 / 48 checks reliable</span></div>
+      </div>
+    </section>
+
+    <!-- CONTINUITY -->
+    <section class="view" id="continuity">
+      <div class="page-head">
+        <h1>Continuity</h1>
+        <div class="sub">Git is the system of record — CompHub reads and launches <span class="mono">.compass/</span>, it doesn't write the logs</div>
+      </div>
+      <div class="card">
+        <div class="repo-row">
+          <span class="repo-name">checkout-service</span>
+          <span class="badge ok">standardized</span>
+          <span class="repo-session">last session 2d ago · <span class="cmd">/compass</span> “debug payment retry timeout”</span>
+          <button class="btn primary">Resume session</button>
+        </div>
+        <div class="repo-row">
+          <span class="repo-name">payments-api</span>
+          <span class="badge ok">standardized</span>
+          <span class="repo-session">last session 5h ago · <span class="cmd">/compass</span> “add idempotency keys”</span>
+          <button class="btn primary">Resume session</button>
+        </div>
+        <div class="repo-row">
+          <span class="repo-name">web-storefront</span>
+          <span class="badge off">not set up</span>
+          <span class="repo-session">no <span class="mono">.compass/</span> folder yet</span>
+          <button class="btn">Standardize repo</button>
+        </div>
+      </div>
+      <div class="note">
+        <svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/></svg>
+        <div><b>Standardize repo</b> opens a single PR that installs the <code>.compass/</code> structure and the <code>compass</code> skill. After that, logging happens locally through <code>/compass …</code>, committed in the same PR as the work. CompHub's only write is that setup PR.</div>
+      </div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section class="view" id="settings">
+      <div class="page-head">
+        <h1>Settings</h1>
+        <div class="sub">Enablement and integrations for <span class="mono">acme-platform</span></div>
+      </div>
+
+      <p class="section-label">Integrations</p>
+      <div class="card">
+        <div class="setting-row">
+          <div class="label"><div class="t">PM provider</div><div class="d">Source for Epic → Story → Task. Currently <span class="mono">mock</span>.</div></div>
+          <span class="badge off">mock</span>
+          <button class="btn">Connect</button>
+        </div>
+        <div class="setting-row">
+          <div class="label"><div class="t">Scanner provider</div><div class="d">Source for vulnerability findings. Currently <span class="mono">mock</span>.</div></div>
+          <span class="badge off">mock</span>
+          <button class="btn">Connect</button>
+        </div>
+        <div class="setting-row">
+          <div class="label"><div class="t">SCM provider</div><div class="d">Repos and PRs for remediation &amp; standardization. Currently <span class="mono">mock</span>.</div></div>
+          <span class="badge off">mock</span>
+          <button class="btn">Connect</button>
+        </div>
+      </div>
+
+      <p class="section-label" style="margin-top:24px;">Enabled workspaces</p>
+      <div class="card">
+        <div class="setting-row"><div class="label"><div class="t">Delivery</div></div><button class="toggle" aria-label="Delivery enabled"></button></div>
+        <div class="setting-row"><div class="label"><div class="t">Vulnerabilities</div></div><button class="toggle" aria-label="Vulnerabilities enabled"></button></div>
+        <div class="setting-row"><div class="label"><div class="t">Health</div></div><button class="toggle" aria-label="Health enabled"></button></div>
+        <div class="setting-row"><div class="label"><div class="t">Observability</div></div><button class="toggle" aria-label="Observability enabled"></button></div>
+        <div class="setting-row"><div class="label"><div class="t">Reporting</div></div><button class="toggle" aria-label="Reporting enabled"></button></div>
+        <div class="setting-row"><div class="label"><div class="t">Continuity</div></div><button class="toggle" aria-label="Continuity enabled"></button></div>
+      </div>
+
+      <p class="section-label" style="margin-top:24px;">SLA policy</p>
+      <div class="card">
+        <div class="setting-row"><div class="label"><div class="t">Critical</div><div class="d">Remediation window for critical findings</div></div><span class="mono" style="color:var(--ink);">30 days</span></div>
+        <div class="setting-row"><div class="label"><div class="t">High</div><div class="d">Remediation window for high findings</div></div><span class="mono" style="color:var(--ink);">60 days</span></div>
+        <div class="setting-row"><div class="label"><div class="t">Medium</div><div class="d">Remediation window for medium findings</div></div><span class="mono" style="color:var(--ink);">90 days</span></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+  const views = document.querySelectorAll('.view');
+  const navItems = document.querySelectorAll('.nav-item');
+  const rail = document.querySelector('.rail');
+  const backdrop = document.getElementById('backdrop');
+  const navToggle = document.getElementById('navToggle');
+
+  function openNav(){
+    rail.classList.add('open');
+    backdrop.classList.add('show');
+    navToggle.setAttribute('aria-expanded','true');
+  }
+  function closeNav(){
+    rail.classList.remove('open');
+    backdrop.classList.remove('show');
+    navToggle.setAttribute('aria-expanded','false');
+  }
+
+  function show(id){
+    views.forEach(v => v.classList.toggle('active', v.id === id));
+    navItems.forEach(n => n.setAttribute('aria-current', n.dataset.view === id ? 'true' : 'false'));
+    document.querySelector('.main').scrollTop = 0;
+    closeNav();                               // collapse drawer after navigating on mobile
+    if(id === 'vulnerabilities') paintSLA();  // animate SLA bars when vulnerabilities opens
+  }
+
+  function paintSLA(){
+    document.querySelectorAll('.sla-fill').forEach(f => {
+      const pct = Math.min(100, Number(f.dataset.pct));
+      f.style.width = '0';
+      requestAnimationFrame(() => { f.style.transition = 'width .6s ease'; f.style.width = pct + '%'; });
+    });
+  }
+
+  document.querySelectorAll('[data-view]').forEach(el => {
+    el.addEventListener('click', e => { e.preventDefault(); show(el.dataset.view); });
+  });
+
+  navToggle.addEventListener('click', () => rail.classList.contains('open') ? closeNav() : openNav());
+  backdrop.addEventListener('click', closeNav);
+  document.addEventListener('keydown', e => { if(e.key === 'Escape') closeNav(); });
+  // if resized up to desktop, make sure the drawer state is reset
+  window.addEventListener('resize', () => { if(window.innerWidth > 720) closeNav(); });
+</script>
+</body>
+</html>
