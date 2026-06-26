@@ -1,4 +1,4 @@
-# .compass — session memory for this repo
+# .comphub — session memory for this repo
 
 This folder is **CompHub Continuity**: a committed, human-readable record of the work
 done in this repo with AI assistance. It exists so any future session — human or AI — can
@@ -8,17 +8,19 @@ pick up with full context instead of starting cold.
 
 - **Git is the system of record.** Each session log lives here and is committed in the
   same change as the work it describes.
-- **The `compass` skill writes it.** Run [`/compass`](../.claude/skills/compass/SKILL.md)
-  locally — `recall` to restore context at the start, `log` to record at the end. The
+- **The `comphub` skill writes it.** Run [`/comphub`](../.claude/skills/comphub/SKILL.md)
+  locally — `recall` to restore context, the `start` → `log` → `end` lifecycle (plus
+  `resume`) to record a session, and `todo` / `pick` to manage the repo backlog. The
   CompHub app only *reads* this folder and can propose a one-time "standardize" PR; the
   app never writes logs.
 
 ## Layout
 
 ```
-.compass/
+.comphub/
   README.md          # this file — the format (not edited per session)
   index.md           # rolling index, newest first; one line per session
+  todo.md            # repo to-do backlog — open items first, then done
   sessions/
     NNNN-slug.md      # one file per session: zero-padded id + kebab slug
 ```
