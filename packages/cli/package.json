@@ -1,0 +1,28 @@
+{
+  "name": "@hudlix/comphub",
+  "version": "0.1.0",
+  "description": "Scaffold a CompHub deployment — npx @hudlix/comphub create <name>",
+  "license": "Apache-2.0",
+  "type": "module",
+  "bin": {
+    "comphub": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "esbuild src/index.ts --bundle --platform=node --format=esm --target=node18 --outfile=dist/index.js --banner:js=\"#!/usr/bin/env node\"",
+    "dev": "tsx src/index.ts",
+    "typecheck": "tsc -p tsconfig.json",
+    "lint": "eslint src"
+  },
+  "devDependencies": {
+    "@comphub/core": "0.1.0",
+    "@types/node": "^20.16.11",
+    "esbuild": "^0.24.0",
+    "tsx": "^4.19.1"
+  }
+}
