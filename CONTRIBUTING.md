@@ -27,7 +27,7 @@ This appends a `Signed-off-by:` line with your name and email. Set them once wit
   dry-run / PR for review — never auto-apply.
 - **Keep it vendor-neutral.** Concrete adapters (Jira, scanners, GitHub) are examples
   behind provider interfaces, never assumptions baked into the core.
-- **Skill and command files are code.** `.compass/` skills and `/compass` commands are
+- **Skill and command files are code.** `.comphub/` skills and `/comphub` commands are
   reviewed in PRs like any other change.
 
 ## How to contribute
