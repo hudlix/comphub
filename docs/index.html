@@ -114,6 +114,35 @@
     background:var(--surface);border:1px solid var(--line);border-radius:7px;padding:4px 16px;}
   .shot img{display:block;width:100%;height:auto;}
 
+  /* ---------- install / quickstart ---------- */
+  .tabs{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:30px;}
+  .tab-btn{display:inline-flex;align-items:center;gap:9px;font-family:'Inter',sans-serif;font-size:14.5px;font-weight:550;
+    padding:10px 16px;border-radius:10px;border:1px solid var(--line-2);background:var(--surface);color:var(--muted);cursor:pointer;transition:background .15s,color .15s,border-color .15s;}
+  .tab-btn:hover{background:var(--surface-2);color:var(--ink);}
+  .tab-btn[aria-selected="true"]{background:var(--marine);color:#fff;border-color:var(--marine);}
+  .tab-btn .num{font-family:'JetBrains Mono',monospace;font-size:11px;opacity:.7;}
+  .tab-panel{display:none;max-width:780px;margin:0 auto;}
+  .tab-panel.active{display:block;animation:fadein .25s ease;}
+  @keyframes fadein{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+  .panel-lead{text-align:center;color:var(--muted);font-size:15.5px;margin:0 0 22px;}
+  .panel-lead b{color:var(--ink);font-weight:600;}
+  .code{background:var(--ink);border-radius:12px;overflow:hidden;box-shadow:var(--shadow-lg);}
+  html[data-theme="dark"] .code{background:#0C0B08;border:1px solid var(--line-2);}
+  .code-head{display:flex;align-items:center;justify-content:space-between;padding:9px 12px 9px 16px;border-bottom:1px solid rgba(255,255,255,.08);}
+  .code-head .label{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:#9A917F;}
+  .code-copy{display:inline-flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;font-size:12px;
+    background:rgba(255,255,255,.08);color:#E9E4D9;border:none;border-radius:7px;padding:6px 10px;cursor:pointer;transition:background .15s;}
+  .code-copy:hover{background:rgba(255,255,255,.2);}
+  .code-copy svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;}
+  .code pre{margin:0;padding:16px 18px;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:13.5px;line-height:1.9;color:#E9E4D9;}
+  .code .cm{color:#9A917F;}
+  .code .pr{color:#5EA9BE;user-select:none;}
+  .code .ok{color:#7FB98F;}
+  .panel-note{text-align:center;font-size:13.5px;color:var(--faint);margin:16px 0 0;}
+  .panel-note a{color:var(--marine-ink);text-decoration:none;font-weight:500;}
+  .panel-note a:hover{text-decoration:underline;}
+  .panel-cta{display:flex;justify-content:center;margin-top:8px;}
+
   /* ---------- generic section ---------- */
   .sec{padding:84px 0;}
   .sec-head{max-width:62ch;margin-bottom:44px;}
@@ -247,6 +276,7 @@
     <div class="nav-links">
       <a href="#workspaces">Workspaces</a>
       <a href="#how">How it works</a>
+      <a href="#install">Install</a>
       <a href="#architecture">Architecture</a>
       <a href="#opensource">Open source</a>
       <a href="./demo/">Demo</a>
@@ -259,7 +289,7 @@
         <span class="gh-label"><svg viewBox="0 0 16 16"><path d="M8 0a8 8 0 0 0-2.53 15.59c.4.07.55-.17.55-.38l-.01-1.49c-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.4 7.4 0 0 1 4 0c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48l-.01 2.2c0 .21.15.46.55.38A8 8 0 0 0 8 0Z"/></svg><span>Star</span></span>
         <span class="gh-count" id="starCount">&#9733;</span>
       </a>
-      <a class="btn primary" href="#how">Get started</a>
+      <a class="btn primary" href="#install">Get started</a>
       <button class="icon-btn hamburger" id="hamburger" aria-label="Menu"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
     </div>
   </div>
@@ -267,6 +297,7 @@
 <div class="mobile-menu" id="mobileMenu">
   <a href="#workspaces">Workspaces</a>
   <a href="#how">How it works</a>
+  <a href="#install">Install</a>
   <a href="#architecture">Architecture</a>
   <a href="#opensource">Open source</a>
   <a href="./demo/">Live demo</a>
@@ -286,7 +317,7 @@
     <h1>Stay compliant and in control &mdash; <em>without replacing your stack.</em></h1>
     <p class="lead">CompHub is an open-source control plane for engineering teams. It unifies vulnerability SLAs, delivery cadence, service health, observability, and reporting into one launcher of independently enableable workspaces &mdash; connected to your tools through pluggable adapters.</p>
     <div class="cta-row">
-      <a class="btn primary" href="#how">Get started</a>
+      <a class="btn primary" href="#install">Get started</a>
       <a class="btn ghost" href="./demo/">Launch live demo &#8594;</a>
     </div>
     <div class="install" id="installBox" title="Click to copy">
@@ -388,6 +419,99 @@
       <div class="step reveal"><h3>Connect adapters</h3><p>Swap in a PM, scanner, or SCM provider through config. Vendor-neutral by design.</p></div>
       <div class="step reveal"><h3>Enable workspaces</h3><p>Turn on the workspaces your team needs, per deployment and per user.</p></div>
       <div class="step reveal"><h3>Standardize repos</h3><p>One PR installs the <span class="mono">.comphub/</span> structure. Resume any session with <span class="mono">/comphub</span>.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- INSTALL / QUICKSTART -->
+<section class="sec" id="install" style="padding-top:0;">
+  <div class="wrap">
+    <div class="sec-head center reveal">
+      <p class="eyebrow">Install</p>
+      <h2>Pick a path. Every one runs on mock data.</h2>
+      <p class="lead">No credentials, no external services to stand up. Try it hosted, in Docker, from source, scaffold your own deployment, or drop the Continuity command into any repo.</p>
+    </div>
+
+    <div class="reveal">
+      <div class="tabs" role="tablist" aria-label="Install options">
+        <button class="tab-btn" role="tab" data-tab="demo"   aria-selected="true"><span class="num">01</span> Hosted demo</button>
+        <button class="tab-btn" role="tab" data-tab="docker" aria-selected="false"><span class="num">02</span> Docker</button>
+        <button class="tab-btn" role="tab" data-tab="source" aria-selected="false"><span class="num">03</span> From source</button>
+        <button class="tab-btn" role="tab" data-tab="scaffold" aria-selected="false"><span class="num">04</span> Scaffold</button>
+        <button class="tab-btn" role="tab" data-tab="plugin" aria-selected="false"><span class="num">05</span> Continuity plugin</button>
+      </div>
+
+      <!-- 01 demo -->
+      <div class="tab-panel active" id="panel-demo" role="tabpanel">
+        <p class="panel-lead"><b>Nothing to install.</b> Open the hosted dashboard — the full launcher on demo data.</p>
+        <div class="code">
+          <div class="code-head"><span class="label">browser</span></div>
+          <pre><span class="cm"># the whole control plane, no setup</span>
+<span class="pr">→</span> https://comphub.io/demo</pre>
+        </div>
+        <div class="panel-cta"><a class="btn primary" href="./demo/" style="margin-top:18px;">Launch live demo &#8594;</a></div>
+      </div>
+
+      <!-- 02 docker -->
+      <div class="tab-panel" id="panel-docker" role="tabpanel">
+        <p class="panel-lead"><b>One command, no Node toolchain.</b> Embedded store, mock data — web on <span class="mono">:3000</span>, api on <span class="mono">:4000</span>.</p>
+        <div class="code">
+          <div class="code-head">
+            <span class="label">shell</span>
+            <button class="code-copy" data-copy="git clone https://github.com/hudlix/comphub.git&#10;cd comphub&#10;docker compose up"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>Copy</button>
+          </div>
+          <pre><span class="pr">$</span> git clone https://github.com/hudlix/comphub.git
+<span class="pr">$</span> cd comphub
+<span class="pr">$</span> docker compose up        <span class="cm"># web :3000 · api :4000 · mock data</span></pre>
+        </div>
+        <p class="panel-note">Then open <a href="http://localhost:3000">localhost:3000</a>. Stop with <span class="mono">Ctrl-C</span>.</p>
+      </div>
+
+      <!-- 03 source -->
+      <div class="tab-panel" id="panel-source" role="tabpanel">
+        <p class="panel-lead"><b>The contributor path.</b> Requires Node.js 18+. One install wires the whole npm-workspaces monorepo.</p>
+        <div class="code">
+          <div class="code-head">
+            <span class="label">shell</span>
+            <button class="code-copy" data-copy="git clone https://github.com/hudlix/comphub.git&#10;cd comphub&#10;npm install&#10;npm run dev"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>Copy</button>
+          </div>
+          <pre><span class="pr">$</span> git clone https://github.com/hudlix/comphub.git
+<span class="pr">$</span> cd comphub
+<span class="pr">$</span> npm install              <span class="cm"># wires every app + package</span>
+<span class="pr">$</span> npm run dev              <span class="cm"># boots web + api together, mock mode</span></pre>
+        </div>
+        <p class="panel-note">You never <span class="mono">cd</span> into internal folders — one root install runs everything.</p>
+      </div>
+
+      <!-- 04 scaffold -->
+      <div class="tab-panel" id="panel-scaffold" role="tabpanel">
+        <p class="panel-lead"><b>Scaffold your own deployment.</b> Generates a configured CompHub you own — choose which workspaces ship.</p>
+        <div class="code">
+          <div class="code-head">
+            <span class="label">shell</span>
+            <button class="code-copy" data-copy="npx @hudlix/comphub create my-platform&#10;cd my-platform&#10;npm run dev"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>Copy</button>
+          </div>
+          <pre><span class="pr">$</span> npx @hudlix/comphub create my-platform
+<span class="pr">$</span> cd my-platform
+<span class="pr">$</span> npm run dev</pre>
+        </div>
+        <p class="panel-note"><span class="mono">npm</span> publish of the CLI is on the roadmap — clone or Docker work today.</p>
+      </div>
+
+      <!-- 05 plugin -->
+      <div class="tab-panel" id="panel-plugin" role="tabpanel">
+        <p class="panel-lead"><b>Continuity in any repo.</b> Install the <span class="mono">/comphub</span> command via the Claude Code plugin marketplace — committed session memory in <span class="mono">.comphub/</span>.</p>
+        <div class="code">
+          <div class="code-head">
+            <span class="label">claude code</span>
+            <button class="code-copy" data-copy="/plugin marketplace add hudlix/comphub-plugins&#10;/plugin install comphub@hudlix&#10;/comphub help"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>Copy</button>
+          </div>
+          <pre><span class="pr">›</span> /plugin marketplace add hudlix/comphub-plugins
+<span class="pr">›</span> /plugin install comphub@hudlix
+<span class="pr">›</span> /comphub help            <span class="cm"># works in any repo</span></pre>
+        </div>
+        <p class="panel-note">Then <span class="mono">/comphub start</span>, <span class="mono">log</span>, <span class="mono">end</span>, <span class="mono">resume</span> — git stays the system of record.</p>
+      </div>
     </div>
   </div>
 </section>
@@ -539,6 +663,28 @@
     }).catch(()=>{});
   }
   document.getElementById('installBox').addEventListener('click', copyCmd);
+
+  // install tabs
+  const tabBtns = document.querySelectorAll('.tab-btn');
+  const panels = document.querySelectorAll('.tab-panel');
+  tabBtns.forEach(btn => btn.addEventListener('click', () => {
+    tabBtns.forEach(b => b.setAttribute('aria-selected', b === btn ? 'true' : 'false'));
+    panels.forEach(p => p.classList.toggle('active', p.id === 'panel-' + btn.dataset.tab));
+  }));
+
+  // per-block copy
+  const copyIcon = '<svg viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>Copy';
+  document.querySelectorAll('.code-copy').forEach(btn => {
+    btn.innerHTML = copyIcon;
+    btn.addEventListener('click', () => {
+      const text = (btn.getAttribute('data-copy') || '').replace(/&#10;/g, '\n');
+      if(!navigator.clipboard) return;
+      navigator.clipboard.writeText(text).then(() => {
+        btn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>Copied';
+        setTimeout(() => { btn.innerHTML = copyIcon; }, 1400);
+      }).catch(()=>{});
+    });
+  });
 
   (async () => {
     try {
