@@ -21,7 +21,7 @@ A launcher shell + independently enableable workspaces:
 - **Health** — uptime / latency / incidents.
 - **Observability** — behavioral checks + alert reliability.
 - **Reporting** — cross-workspace roll-ups.
-- **Continuity** — per-repo committed AI session memory (`.compass/`).
+- **Continuity** — per-repo committed AI session memory (`.comphub/`).
 - **Launcher** + **Settings** are the shared shell, not workspaces.
 
 ## Locked architecture decisions (do not re-litigate; flag if one truly needs revisiting)
@@ -40,10 +40,10 @@ A launcher shell + independently enableable workspaces:
 - **Delivery data comes from the PM provider** (Epic→card, Stories→rollup, Tasks→child).
   The lifecycle **stage** is *derived* via one configurable rule (board column / status /
   label), never stored.
-- **Continuity: git is the system of record.** `.compass/` committed in each repo is the
+- **Continuity: git is the system of record.** `.comphub/` committed in each repo is the
   memory. The app **reads, launches, and standardizes**; it does not write logs. Log
-  writing happens locally via a committed `compass` skill
-  (`.claude/skills/compass/SKILL.md`, invoked as `/compass …`), committed in the same PR
+  writing happens locally via a committed `comphub` skill
+  (`.claude/skills/comphub/SKILL.md`, invoked as `/comphub …`), committed in the same PR
   as the work. The app's only write is a "standardize repo" PR. One repo per session.
 - **SLA policy is configuration, not hardcoded** (defaults 30/60/90 days per severity,
   editable per deployment).

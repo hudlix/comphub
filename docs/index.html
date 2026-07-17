@@ -368,7 +368,7 @@
       <div class="card reveal">
         <svg class="ic" viewBox="0 0 24 24"><circle cx="6" cy="6" r="2.5"/><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="12" r="2.5"/><path d="M6 8.5v7M8.2 7.2l8 3.6M8.2 16.8l8-3.6"/></svg>
         <h3>Continuity</h3>
-        <p>Per-repo, committed AI session memory in <span class="mono">.compass/</span> so any teammate &mdash; or a fresh agent &mdash; can resume work.</p>
+        <p>Per-repo, committed AI session memory in <span class="mono">.comphub/</span> so any teammate &mdash; or a fresh agent &mdash; can resume work.</p>
         <span class="kbd">git is the system of record</span>
       </div>
     </div>
@@ -387,7 +387,7 @@
       <div class="step reveal"><h3>Run in mock mode</h3><p>Clone, install, and start. Every workspace runs on demo data &mdash; no secrets required.</p></div>
       <div class="step reveal"><h3>Connect adapters</h3><p>Swap in a PM, scanner, or SCM provider through config. Vendor-neutral by design.</p></div>
       <div class="step reveal"><h3>Enable workspaces</h3><p>Turn on the workspaces your team needs, per deployment and per user.</p></div>
-      <div class="step reveal"><h3>Standardize repos</h3><p>One PR installs the <span class="mono">.compass/</span> structure. Resume any session with <span class="mono">/compass</span>.</p></div>
+      <div class="step reveal"><h3>Standardize repos</h3><p>One PR installs the <span class="mono">.comphub/</span> structure. Resume any session with <span class="mono">/comphub</span>.</p></div>
     </div>
   </div>
 </section>
@@ -399,16 +399,16 @@
       <p class="eyebrow">Continuity</p>
       <h2 style="font-size:clamp(26px,3.6vw,38px);">Work that survives the person who did it.</h2>
       <ul class="feat-list">
-        <li><b>Git is the system of record.</b> Session memory is committed in your repos under <span class="mono">.compass/</span>, reviewed in the same PR as the work.</li>
+        <li><b>Git is the system of record.</b> Session memory is committed in your repos under <span class="mono">.comphub/</span>, reviewed in the same PR as the work.</li>
         <li><b>CompHub reads and launches it.</b> The app standardizes the structure and resumes sessions; it doesn&rsquo;t write your logs.</li>
         <li><b>A fresh agent can pick up cold.</b> Hand an incident or a half-built feature to anyone &mdash; or any model &mdash; with full context.</li>
       </ul>
     </div>
     <div class="term reveal" aria-hidden="true">
-<span class="c-prompt">$</span> /compass log <span class="c-warn">"debug payment retry timeout"</span><br>
-<span class="c-ok">&#10003;</span> wrote .compass/sessions/2026-06-25-payment-retry.md<br>
+<span class="c-prompt">$</span> /comphub log <span class="c-warn">"debug payment retry timeout"</span><br>
+<span class="c-ok">&#10003;</span> wrote .comphub/sessions/2026-06-25-payment-retry.md<br>
 <span class="c-dim"># committed alongside the fix in PR #142</span><br><br>
-<span class="c-prompt">$</span> /compass resume<br>
+<span class="c-prompt">$</span> /comphub resume<br>
 <span class="c-dim">&#8635; loading last session &middot; checkout-service</span><br>
 <span class="c-ok">&#10003;</span> context restored &mdash; 3 decisions, 2 open threads<br>
 <span class="c-dim">&nbsp;&nbsp;&#8627; retry backoff still unverified under load</span>
@@ -458,7 +458,7 @@
     <div class="faq reveal">
       <details open><summary>Is CompHub free?</summary><p>Yes. The core is open source under Apache-2.0 and you self-host it. A paid enterprise tier (SSO, fine-grained RBAC, multi-tenant, audit, advanced reporting) is planned later as open-core &mdash; the core stays open.</p></details>
       <details><summary>Do I have to use Jira or GitHub?</summary><p>No. Integrations are pluggable adapter ports, and a mock adapter ships on by default. Jira, GitHub, GitLab, and scanners are example adapters; you can add your own.</p></details>
-      <details><summary>Where does my data live?</summary><p>In your deployment. Continuity session memory lives in your own git repos under <span class="mono">.compass/</span> &mdash; there&rsquo;s no CompHub database you can&rsquo;t walk away from.</p></details>
+      <details><summary>Where does my data live?</summary><p>In your deployment. Continuity session memory lives in your own git repos under <span class="mono">.comphub/</span> &mdash; there&rsquo;s no CompHub database you can&rsquo;t walk away from.</p></details>
       <details><summary>Does it replace my existing tools?</summary><p>No &mdash; that&rsquo;s the point. CompHub reads from the tools you already use and gives you one place to see and act on compliance and delivery state.</p></details>
       <details><summary>What&rsquo;s the status?</summary><p>Early. The product site and specs are public now; the application scaffold is the next milestone. Follow along or contribute on GitHub.</p></details>
     </div>

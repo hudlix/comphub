@@ -79,7 +79,7 @@ needs revisiting, stop and flag it.
 > - No cross-workspace internal imports anywhere.
 >
 > **Out of scope for this pass:** any real Jira/scanner/GitHub calls, workspace business
-> logic, mutations, the `/compass` skill. We'll do those next.
+> logic, mutations, the `/comphub` skill. We'll do those next.
 >
 > When done, summarize what you created, list the new scripts, and propose the next issue
 > (the read-only **Delivery** vertical slice on the mock PM, including the derived-stage rule).
@@ -94,8 +94,8 @@ Next prompts, one per issue:
    with no data migration.
 2. **Vulnerabilities (read-only slice)** — findings on the SLA clock against the editable
    30/60/90 policy; severity → remediation window; breach/approaching/ok states.
-3. **The `compass` skill** — `.claude/skills/compass/SKILL.md` invoked as `/compass`, plus the
-   app's single "standardize repo" PR that installs `.compass/`. App reads/launches; the skill
+3. **The `comphub` skill** — `.claude/skills/comphub/SKILL.md` invoked as `/comphub`, plus the
+   app's single "standardize repo" PR that installs `.comphub/`. App reads/launches; the skill
    writes logs locally, committed with the work.
 
 Keep each to a small PR tied to a GitHub issue. Mock mode stays the default throughout.

@@ -6,7 +6,7 @@ CompHub is an open-source control plane that helps engineering teams stay on top
 their apps without swapping out the tools they already use. It unifies vulnerability
 SLAs, delivery cadence, service health, observability, and reporting into one launcher
 of independently enableable workspaces, connected to your stack through pluggable
-adapters. A committed `.compass/` memory layer gives every repo persistent, resumable
+adapters. A committed `.comphub/` memory layer gives every repo persistent, resumable
 session context, so any teammate — or a fresh agent — can pick up where the last one
 left off.
 
@@ -28,7 +28,7 @@ Each workspace is independent and can be turned on or off per deployment and per
 - **Health** — service uptime, latency, and incidents.
 - **Observability** — behavioral checks and alert reliability.
 - **Reporting** — cross-workspace roll-ups for the people who don't open the others.
-- **Continuity** — per-repo, committed AI session memory (`.compass/`) so work and
+- **Continuity** — per-repo, committed AI session memory (`.comphub/`) so work and
   incidents are resumable. Git is the system of record; CompHub reads and launches it.
 
 The launcher and settings are the shared shell, not workspaces.
